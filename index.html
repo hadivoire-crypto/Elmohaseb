@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ميزان · Mizan</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#14202b;--mu:#6b7785;--pr:#0f766e;--bd:#e3e7ec;--ok:#16a34a;--wa:#d97706;--er:#dc2626;--ye:#ca8a04;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e141a;--card:#17202a;--tx:#e8edf2;--mu:#93a1b0;--pr:#2dd4bf;--bd:#26323f}}
+:root[data-theme="dark"]{--bg:#0e141a;--card:#17202a;--tx:#e8edf2;--mu:#93a1b0;--pr:#2dd4bf;--bd:#26323f}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font-family:Cairo,system-ui,sans-serif;padding-bottom:76px}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px}
+h1{font-size:20px;margin:0;color:var(--pr)}h2{font-size:16px;margin:18px 0 8px}
+main{padding:0 14px;max-width:760px;margin:auto}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.k small{color:var(--mu);display:block;font-size:12px}.k b{font-size:19px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.mu{color:var(--mu);font-size:12px}
+input,select,button{font:inherit;color:inherit}
+input,select{width:100%;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);margin:3px 0}
+.btn{background:var(--pr);color:#fff;border:0;border-radius:10px;padding:10px 14px;min-height:44px;cursor:pointer}
+.btn.s{background:transparent;color:var(--pr);border:1px solid var(--pr)}
+.lang{background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:6px 14px;cursor:pointer}
+.lang.on{background:var(--pr);color:#fff;border-color:var(--pr)}
+.chip{font-size:12px;padding:3px 10px;border-radius:20px;color:#fff;white-space:nowrap}
+.c-r{background:var(--er)}.c-o{background:var(--wa)}.c-y{background:var(--ye)}.c-g{background:var(--ok)}
+.c-r.pulse{animation:p 1.4s infinite}@keyframes p{50%{opacity:.55}}
+.bar{height:6px;background:var(--bd);border-radius:6px;margin-top:6px;overflow:hidden}.bar i{display:block;height:100%}
+nav{position:fixed;bottom:0;inset-inline:0;display:flex;background:var(--card);border-top:1px solid var(--bd);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav button{flex:1;background:none;border:0;padding:12px 2px;min-height:56px;color:var(--mu);font-size:11.5px;cursor:pointer}
+nav button.on{color:var(--pr);font-weight:700}
+.l3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:6px}
+.edge{border-inline-start:4px solid var(--er)}.edge.o{border-color:var(--wa)}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const T={
+ar:{app:"ميزان",dash:"اللوحة",prods:"المنتجات",buys:"المشتريات",exp:"الصلاحية",invc:"قيمة المخزون (تكلفة)",invr:"قيمة المخزون (بيع)",low:"مخزون منخفض",soon:"تنتهي خلال 30 يوماً",out:"نفد",expd:"منتهية",nar:"الاسم بالعربية",nen:"الاسم بالإنجليزية",price:"سعر البيع",min:"حد الطلب",track:"تتبع الصلاحية",add:"إضافة منتج",sup:"المورد",date:"التاريخ",qty:"الكمية",cost:"التكلفة",ex:"تاريخ الانتهاء",save:"حفظ الشراء",line:"+ سطر",demo:"تحميل بيانات تجريبية",clr:"مسح الكل",d:"يوم",stk:"المخزون",none:"لا يوجد شيء بعد",cur:"أوقية",prod:"المنتج",alerts:"تنبيهات",ok:"سليم",lowb:"منخفض",wac:"متوسط التكلفة",last:"آخر المشتريات",sure:"هل أنت متأكد؟",sales:"المبيعات",cust:"الزبون",disc:"الخصم",pr:"السعر (اختياري)",rev:"الإيرادات",cogs:"تكلفة المبيعات",gp:"مجمل الربح",gm:"هامش الربح",nostk:"المخزون الصالح غير كافٍ",sell:"تسجيل البيع",lasts:"آخر المبيعات",fin:"المالية",edit:"تعديل",del:"حذف",upd:"حفظ التعديل",opx:"المصاريف التشغيلية",np:"صافي الربح",nmg:"هامش صافي الربح",addexp:"تسجيل مصروف",cat:"البند (إيجار، كهرباء…)",amt:"المبلغ",capital:"رأس المال",inv:"استثمار المالك",wd:"سحب المالك",kpi:"المؤشرات",capi:"رأس المال المستثمر",roi:"العائد على رأس المال",ctn:"دوران رأس المال (مرة)",itn:"دوران المخزون (مرة)",dio:"أيام بقاء المخزون",pay:"أيام استرداد رأس المال",note:"دوران المخزون وأيامه تقريبية، محسوبة على قيمة المخزون الحالية.",rexp:"آخر المصاريف",shop:"المحل",me:"شخصي",pdash:"نظرة عامة",ptx:"المعاملات",pbud:"الميزانية",pport:"المحفظة",xout:"مصروف",xin:"دخل",note2:"ملاحظة",pin:"دخل الشهر",pex:"مصاريف الشهر",sr:"نسبة الادخار",nw:"صافي الثروة",needs:"احتياجات (% من الدخل)",wants:"رغبات (% من الدخل)",emg:"صندوق الطوارئ (أشهر)",bal:"المتبقي",rule:"قاعدة 50/30/20: احتياجات 50% · رغبات 30% · ادخار 20%",top:"أكبر بنود الإنفاق",plan:"المخطط",act:"الفعلي",fc:"توقع نهاية الشهر",buyx:"اشترِ",sellx:"بِع",tsum:"مجموع الأهداف",t100:"مجموع النسب المستهدفة يجب أن يساوي 100%",aname:"اسم الأصل",val:"القيمة",alloc:"التوزيع مقابل الهدف",assets:"الأصول",xp:"تصدير إلى Excel (نسخ)",cpd:"تم النسخ. الصقه في Excel أو Google Sheets",manual:"انسخ النص أدناه والصقه في Excel",wk:"مبيعات آخر 7 أيام",impb:"استيراد من فاتورة",imptitle:"استيراد مشتريات",paste:"الصق هنا جدول Excel (نفس أعمدة الملف) أو JSON",parse:"تحليل وإنشاء المسودة",match:"✔ منتج موجود",newp:"+ منتج جديد سيُنشأ",ppc:"القطع في العلبة",cprice:"سعر العلبة",pcnt:"نسبة الربح",tot2:"الإجمالي",pfx:"الربح",printed:"الإجمالي المطبوع",diffx:"الفرق عن المطبوع",dup:"توجد فاتورة مطابقة (نفس المورد والتاريخ والمبلغ). هل تريد المتابعة؟",noparse:"لم أجد أسطراً صالحة",confirm:"تأكيد وتسجيل الشراء",back:"رجوع",pcsnote:"يُسجَّل المخزون بالقطع، ويُحدَّث سعر بيع كل منتج حسب النسبة المختارة.",sumx:"إجمالي الفاتورة",pfsum:"الربح المتوقع"},
+en:{app:"Mizan",dash:"Dashboard",prods:"Products",buys:"Purchases",exp:"Expiry",invc:"Inventory value (cost)",invr:"Inventory value (retail)",low:"Low stock",soon:"Expiring in 30 days",out:"Out of stock",expd:"Expired",nar:"Arabic name",nen:"English name",price:"Sale price",min:"Reorder level",track:"Track expiry",add:"Add product",sup:"Supplier",date:"Date",qty:"Qty",cost:"Cost",ex:"Expiry date",save:"Save purchase",line:"+ Line",demo:"Load demo data",clr:"Clear all",d:"d",stk:"Stock",none:"Nothing yet",cur:"MRU",prod:"Product",alerts:"Alerts",ok:"OK",lowb:"Low",wac:"Avg cost",last:"Recent purchases",sure:"Are you sure?",sales:"Sales",cust:"Customer",disc:"Discount",pr:"Price (optional)",rev:"Revenue",cogs:"COGS",gp:"Gross profit",gm:"Gross margin",nostk:"Not enough valid stock",sell:"Record sale",lasts:"Recent sales",fin:"Finance",edit:"Edit",del:"Delete",upd:"Save changes",opx:"Operating expenses",np:"Net profit",nmg:"Net margin",addexp:"Record expense",cat:"Item (rent, power…)",amt:"Amount",capital:"Capital",inv:"Owner investment",wd:"Owner withdrawal",kpi:"Indicators",capi:"Capital invested",roi:"ROI on capital",ctn:"Capital turnover (x)",itn:"Inventory turnover (x)",dio:"Days inventory outstanding",pay:"Days to recover capital",note:"Inventory turnover and days are approximate, based on current inventory value.",rexp:"Recent expenses",shop:"Shop",me:"Personal",pdash:"Overview",ptx:"Transactions",pbud:"Budget",pport:"Portfolio",xout:"Expense",xin:"Income",note2:"Note",pin:"Income this month",pex:"Expenses this month",sr:"Savings rate",nw:"Net worth",needs:"Needs (% of income)",wants:"Wants (% of income)",emg:"Emergency fund (months)",bal:"Remaining",rule:"50/30/20 rule: needs 50% · wants 30% · savings 20%",top:"Top spending categories",plan:"Planned",act:"Actual",fc:"Month-end forecast",buyx:"Buy",sellx:"Sell",tsum:"Targets total",t100:"Target percentages should add up to 100%",aname:"Asset name",val:"Value",alloc:"Allocation vs target",assets:"Assets",xp:"Export to Excel (copy)",cpd:"Copied. Paste into Excel or Google Sheets",manual:"Copy the text below and paste it into Excel",wk:"Sales, last 7 days",impb:"Import from invoice",imptitle:"Import purchases",paste:"Paste an Excel table (same columns as the file) or JSON here",parse:"Parse and create draft",match:"✔ Existing product",newp:"+ New product will be created",ppc:"Pieces per carton",cprice:"Carton price",pcnt:"Profit %",tot2:"Total",pfx:"Profit",printed:"Printed invoice total",diffx:"Difference vs printed",dup:"A matching invoice exists (same supplier, date and amount). Continue?",noparse:"No valid lines found",confirm:"Confirm and record purchase",back:"Back",pcsnote:"Stock is recorded in pieces, and each product's sale price is updated to the chosen margin.",sumx:"Invoice total",pfsum:"Expected profit"}};
+const $=id=>document.getElementById(id);
+function ls(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k));localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}}
+let lang=ls('mz_lang')||'ar',tab='dash',draft=[{}],editId=null,mod='shop',imp=ls('mz_imp');
+const t=k=>T[lang][k]||k;
+const uid=()=>Math.random().toString(36).slice(2,9);
+const today=()=>new Date().toISOString().slice(0,10);
+const days=e=>Math.ceil((new Date(e)-new Date(today()))/864e5);
+const fmt=x=>Number(x||0).toLocaleString('en',{maximumFractionDigits:2});
+const sum=(a,f)=>a.reduce((s,x)=>s+f(x),0);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* ===== Data layer: replace this object with Supabase calls later ===== */
+const DB={
+ d:Object.assign({sales:[],expenses:[],capital:[],ptx:[],budget:{},assets:[],targets:{}},ls('mizan')||{products:[],batches:[],purchases:[]}),
+ save(){ls('mizan',this.d)},
+ reset(){this.d={products:[],batches:[],purchases:[],sales:[],expenses:[],capital:[],ptx:[],budget:{},assets:[],targets:{}};this.save()}
+};
+/* ===== Business logic (pure functions) ===== */
+const nm=p=>lang==='ar'?(p.ar||p.en):(p.en||p.ar);
+const stk=pid=>sum(DB.d.batches.filter(b=>b.pid===pid),b=>b.q);
+const avail=pid=>sum(DB.d.batches.filter(b=>b.pid===pid&&(!b.e||days(b.e)>=0)),b=>b.q);
+function stChip(p){const s=stk(p.id);
+ if(s<=0)return['<span class="chip c-r pulse">'+t('out')+'</span>','var(--er)',0];
+ if(s<=p.min)return['<span class="chip c-o">'+t('lowb')+'</span>','var(--wa)',s];
+ return['<span class="chip c-g">'+t('ok')+'</span>','var(--ok)',s]}
+function exChip(e){const n=days(e),c=n<=7?'c-r':n<=30?'c-o':n<=60?'c-y':'c-g';
+ return`<span class="chip ${c}">${n<0?t('expd'):n+' '+t('d')}</span>`}
+function savePurchase(){
+ const L=readLines().filter(l=>l.pid&&+l.qty>0);if(!L.length)return;
+ const id=uid(),date=$('dt').value||today();let tot=0;
+ L.forEach(l=>{const p=DB.d.products.find(x=>x.id===l.pid),s=stk(p.id),q=+l.qty,c=+l.cost||0;
+  p.cost=(s*p.cost+q*c)/(s+q);
+  DB.d.batches.push({id:uid(),pid:p.id,pu:id,q:q,q0:q,c:c,e:p.tr?(l.exp||null):null,at:date});tot+=q*c});
+ DB.d.purchases.push({id,sup:$('sup').value,date,tot,n:L.length});
+ DB.save();draft=[{}];R()}
+function saveSale(){
+ const L=readLines().filter(l=>l.pid&&+l.qty>0);if(!L.length)return;
+ const need={};L.forEach(l=>need[l.pid]=(need[l.pid]||0)+(+l.qty));
+ for(const pid in need){if(avail(pid)<need[pid]){alert(t('nostk'));return}}
+ let rev=-(+$('ds').value||0),cogs=0;
+ L.forEach(l=>{let q=+l.qty;const p=DB.d.products.find(x=>x.id===l.pid),pr=l.cost!==''&&l.cost!=null?+l.cost:p.sp;rev+=q*pr;
+  /* FEFO: earliest expiry first, expired batches skipped */
+  DB.d.batches.filter(b=>b.pid===l.pid&&b.q>0&&(!b.e||days(b.e)>=0)).sort((a,b)=>(a.e||'9999')>(b.e||'9999')?1:-1).forEach(b=>{if(q<=0)return;const u=Math.min(b.q,q);b.q-=u;q-=u;cogs+=u*b.c})});
+ DB.d.sales.push({id:uid(),cust:$('cu').value,date:$('dt').value||today(),rev,cogs,n:L.length});
+ DB.save();draft=[{}];R()}
+const CATS=[['hs','سكن','Housing','n'],['fd','طعام','Food','n'],['tr','مواصلات','Transport','n'],['hl','صحة','Health','n'],['ed','تعليم','Education','n'],['fm','عائلة','Family','n'],['ch','زكاة وصدقة','Charity','n'],['ut','فواتير','Utilities','n'],['en','ترفيه','Entertainment','w'],['ot','أخرى','Other','w'],['sv','ادخار','Savings','s']];
+const CLS=[['cash','نقد وحسابات','Cash & accounts'],['gold','ذهب','Gold'],['re','عقارات','Real estate'],['st','أسهم وصناديق','Stocks & funds'],['cr','عملات رقمية','Crypto'],['bz','رأس مال أعمال','Business capital'],['ot','أخرى','Other']];
+const cn=a=>lang==='ar'?a[1]:a[2];
+const catn=k=>cn(CATS.find(c=>c[0]===k)||['','—','—']);
+function addTx(){const a=+$('ta').value;if(!a)return;DB.d.ptx.push({id:uid(),ty:$('tt').value,c:$('tc').value,a,date:$('td').value||today(),n:$('tn').value.trim()});DB.save();R()}
+function delTx(id){DB.d.ptx=DB.d.ptx.filter(x=>x.id!==id);DB.save();R()}
+function setBud(k,v){DB.d.budget[k]=+v||0;DB.save();R()}
+function addAsset(){const v=+$('av').value;if(!v)return;DB.d.assets.push({id:uid(),n:$('an').value.trim(),c:$('ac').value,v});DB.save();R()}
+function delAsset(id){DB.d.assets=DB.d.assets.filter(x=>x.id!==id);DB.save();R()}
+function setTgt(k,v){DB.d.targets[k]=+v||0;DB.save();R()}
+function pm(){const m=DB.d.ptx.filter(x=>x.date.startsWith(today().slice(0,7))),inc=sum(m.filter(x=>x.ty==='in'),x=>x.a),ex=m.filter(x=>x.ty==='out'),by={};ex.forEach(x=>by[x.c]=(by[x.c]||0)+x.a);const exp=sum(ex,x=>x.a),grp=g=>sum(Object.keys(by).filter(k=>(CATS.find(c=>c[0]===k)||[])[3]===g),k=>by[k]);return{inc,exp,by,bal:inc-exp,sr:inc?(inc-exp)/inc*100:null,nd:grp('n'),wn:grp('w')}}
+function rows(k){const d=DB.d,P=id=>{const p=d.products.find(x=>x.id===id);return p?nm(p):''};
+ const M={prods:[[t('prod'),t('stk'),t('wac'),t('price'),t('min')],...d.products.map(p=>[nm(p),stk(p.id),p.cost,p.sp,p.min])],
+ exp:[[t('prod'),t('qty'),t('cost'),t('ex')],...d.batches.filter(b=>b.q>0).map(b=>[P(b.pid),b.q,b.c,b.e||''])],
+ buys:[[t('date'),t('sup'),t('amt')],...d.purchases.map(x=>[x.date,x.sup,x.tot])],
+ sales:[[t('date'),t('cust'),t('rev'),t('cogs'),t('gp')],...d.sales.map(x=>[x.date,x.cust,x.rev,x.cogs,x.rev-x.cogs])],
+ opx:[[t('date'),t('cat'),t('amt')],...d.expenses.map(x=>[x.date,x.cat,x.a])],
+ ptx:[[t('date'),t('xout')+'/'+t('xin'),t('cat'),t('amt'),t('note2')],...d.ptx.map(x=>[x.date,x.ty==='in'?t('xin'):t('xout'),catn(x.c),x.a,x.n])],
+ pport:[[t('aname'),t('alloc'),t('val')],...d.assets.map(a=>[a.n,cn(CLS.find(c=>c[0]===a.c)),a.v])]};
+ return M[k]}
+function exportData(k){const txt=rows(k).map(r=>r.map(v=>String(v??'').replace(/[\t\r\n]+/g,' ')).join('\t')).join('\n');
+ const box=$('xbox');box.style.display='block';box.value=txt;box.focus();box.select();
+ const ok=()=>{$('xmsg').textContent=t('cpd')},no=()=>{$('xmsg').textContent=t('manual')};
+ try{navigator.clipboard.writeText(txt).then(ok,no)}catch(e){no()}}
+const xcard=ks=>`<h2>${t('xp')}</h2><div class="card"><div class="row" style="flex-wrap:wrap;justify-content:flex-start">${ks.map(k=>`<button class="btn s" onclick="exportData('${k}')">${t(k)}</button>`).join('')}</div><div class="mu" id="xmsg"></div><textarea id="xbox" style="display:none;width:100%;height:120px;margin-top:6px" readonly></textarea></div>`;
+function wk(){const out=[];for(let i=6;i>=0;i--){const dt=new Date(Date.now()-i*864e5).toISOString().slice(0,10),s=DB.d.sales.filter(x=>x.date===dt);out.push([dt.slice(5),sum(s,x=>x.rev),sum(s,x=>x.rev-x.cogs)])}
+ const mx=Math.max(1,...out.map(o=>o[1]));
+ return`<h2>${t('wk')}</h2><div class="card"><div style="display:flex;gap:6px">${out.map(o=>`<div style="flex:1;text-align:center;font-size:10px"><div style="display:flex;align-items:flex-end;gap:2px;height:90px"><i style="flex:1;height:${o[1]/mx*100}%;background:var(--pr);border-radius:3px 3px 0 0"></i><i style="flex:1;height:${Math.max(0,o[2])/mx*100}%;background:var(--ok);border-radius:3px 3px 0 0"></i></div>${o[0]}</div>`).join('')}</div><div class="mu" style="margin-top:6px"><span style="color:var(--pr)">■</span> ${t('rev')} <span style="color:var(--ok)">■</span> ${t('gp')}</div></div>`}
+const PCS=[1,6,10,12,20,24,30,36,48,50,100],PC=[30,35,40,45,50,55,60,65,70,75,80,85,90,95];
+const impEmpty=()=>({date:today(),sup:'',tot:'',lines:[]});
+function impCalc(){const d=DB.d;let tot=0,pf=0;
+ const L=imp.lines.map(l=>{const q=+l.q||0,p=+l.p||0,pr=+l.price||0,uc=p?pr/p:0,t0=q*pr,sp=Math.round(uc*(1+(+l.pct||0))),f=(sp-uc)*q*p,nn=String(l.n||'').trim().toLowerCase(),P=d.products.find(x=>[x.ar,x.en].some(s=>s&&s.toLowerCase()===nn));
+  tot+=t0;pf+=f;return{uc,tot:t0,sp,pf:f,pid:P&&P.id,warn:!q||!p||!pr||!nn||(P&&P.tr&&!l.e)}});
+ const dup=d.purchases.some(x=>x.sup===imp.sup&&x.date===imp.date&&Math.abs(x.tot-tot)<0.01);
+ return{L,tot,pf,dup,diff:(imp.tot===''||imp.tot==null)?null:tot-(+imp.tot)}}
+function impParse(){const s=$('itx').value.trim();if(!s)return;const o={date:today(),sup:'',tot:imp.tot,lines:[]};
+ if(s[0]==='{'||s[0]==='['){try{const j=JSON.parse(s),J=Array.isArray(j)?{lines:j}:j;o.date=J.date||o.date;o.sup=J.supplier||'';o.tot=J.total??'';(J.lines||[]).forEach(x=>o.lines.push({n:x.name||'',q:+x.qty||1,p:+x.pieces||1,price:+x.price||0,pct:+x.pct||.3,e:x.expiry||''}))}catch(e){alert('JSON ?');return}}
+ else s.split(/\r?\n/).forEach(r=>{const c=r.split('\t'),n=x=>+String(x).replace(/[%,\s]/g,'')||0;if(c.length<6||!n(c[3]))return;
+  let pc=n(c[8]);if(pc>1)pc/=100;pc=Math.min(.95,Math.max(.3,Math.round(pc*20)/20||.3));
+  if(/^\d{4}-\d{2}-\d{2}/.test(c[0]))o.date=c[0].slice(0,10);o.sup=o.sup||c[1];o.lines.push({n:c[2],q:n(c[3]),p:n(c[4])||1,price:n(c[5]),pct:pc,e:''})});
+ if(!o.lines.length){alert(t('noparse'));return}imp=o;ls('mz_imp',imp);R()}
+function impSet(i,k,v){const l=imp.lines[i];l[k]=(k==='n'||k==='e')?v:+v;ls('mz_imp',imp);R()}
+function impDel(i){imp.lines.splice(i,1);ls('mz_imp',imp);R()}
+function impAdd(){imp.lines.push({n:'',q:1,p:24,price:0,pct:.3,e:''});ls('mz_imp',imp);R()}
+/* Same effect as a manual purchase: batches + weighted average cost + purchase record */
+function impCommit(){const m=impCalc();if(!imp.lines.length)return;if(m.dup&&!confirm(t('dup')))return;
+ const id=uid();let tot=0;
+ imp.lines.forEach((l,i)=>{const c=m.L[i];if(!String(l.n||'').trim())return;let p=DB.d.products.find(x=>x.id===c.pid);
+  if(!p){p={id:uid(),ar:'',en:String(l.n).trim(),sp:c.sp,min:0,tr:!!l.e,cost:0};DB.d.products.push(p)}
+  const q=(+l.q||0)*(+l.p||1),s=stk(p.id);if(q<=0)return;
+  p.cost=(s*p.cost+q*c.uc)/(s+q);p.sp=c.sp;if(l.e)p.tr=true;
+  DB.d.batches.push({id:uid(),pid:p.id,pu:id,q,q0:q,c:c.uc,e:p.tr?(l.e||null):null,at:imp.date});tot+=q*c.uc});
+ DB.d.purchases.push({id,sup:imp.sup,date:imp.date,tot,n:imp.lines.length,src:'import'});
+ DB.save();imp=impEmpty();ls('mz_imp',imp);tab='buys';R()}
+function delProduct(id){if(!confirm(t('sure')))return;DB.d.products=DB.d.products.filter(p=>p.id!==id);DB.d.batches=DB.d.batches.filter(b=>b.pid!==id);DB.save();R()}
+function addExpense(){const a=+$('xa').value;if(!a)return;DB.d.expenses.push({id:uid(),cat:$('xc').value.trim(),a,date:$('xd').value||today()});DB.save();R()}
+function addCapital(){const a=+$('ca').value;if(!a)return;DB.d.capital.push({id:uid(),t:$('ct').value,a,date:today()});DB.save();R()}
+function metrics(){const d=DB.d,rev=sum(d.sales,s=>s.rev),cogs=sum(d.sales,s=>s.cogs),gp=rev-cogs,opx=sum(d.expenses,x=>x.a),np=gp-opx,
+ cap=sum(d.capital,c=>c.t==='in'?c.a:-c.a),inv=sum(d.batches,b=>b.q*b.c),
+ first=d.sales.length?d.sales.map(s=>s.date).sort()[0]:today(),per=Math.max(1,1-days(first)),it=inv>0?cogs/inv:0;
+ return{rev,cogs,gp,opx,np,cap,inv,per,nmg:rev?np/rev*100:null,roi:cap>0?np/cap*100:null,ct:cap>0?rev/cap:null,it,dio:it>0?per/it:null,pay:np>0&&cap>0?cap/(np/per):null}}
+function addProduct(){
+ const ar=$('nar').value.trim(),en=$('nen').value.trim();if(!ar&&!en)return;
+ const o={ar,en,sp:+$('sp').value||0,min:+$('mn').value||0,tr:$('tr').checked};
+ if(editId){Object.assign(DB.d.products.find(x=>x.id===editId),o);editId=null}else DB.d.products.push({id:uid(),...o,cost:0});
+ DB.save();R()}
+function demo(){
+ const mk=(ar,en,sp,min,tr)=>({id:uid(),ar,en,sp,min,tr,cost:0}),P=[mk('حليب 1 لتر','Milk 1L',45,10,1),mk('أرز 5 كغ','Rice 5kg',220,5,0),mk('زيت 1 لتر','Oil 1L',90,8,1),mk('سكر 1 كغ','Sugar 1kg',40,12,0)];
+ const dd=n=>new Date(Date.now()+n*864e5).toISOString().slice(0,10);
+ const B=[[0,30,32,dd(5)],[0,20,34,dd(40)],[1,3,170,null],[2,25,70,dd(25)],[3,0,30,null]];
+ B.forEach(([i,q,c,e])=>{const p=P[i];p.cost=c;DB.d.batches.push({id:uid(),pid:p.id,pu:'demo',q,q0:q,c,e,at:today()})});
+ DB.d.products.push(...P);DB.save();R()}
+/* ===== Views ===== */
+const kp=(l,v)=>`<div class="card k"><small>${l}</small><b>${v}</b></div>`;
+function readLines(){return draft.map((_,i)=>({pid:$('p'+i)?.value,qty:$('q'+i)?.value,cost:$('c'+i)?.value,exp:$('e'+i)?.value}))}
+function addLine(){draft=readLines();draft.push({});R()}
+function alerts(){const d=DB.d,out=[];
+ d.products.forEach(p=>{const s=stk(p.id);if(s<=p.min)out.push(`<div class="card edge ${s>0?'o':''} row"><span>${esc(nm(p))}</span><span>${fmt(s)} / ${p.min} ${stChip(p)[0]}</span></div>`)});
+ d.batches.filter(b=>b.q>0&&b.e&&days(b.e)<=30).sort((a,b)=>a.e>b.e?1:-1).forEach(b=>{const p=d.products.find(x=>x.id===b.pid);out.push(`<div class="card edge o row"><span>${esc(nm(p))} <span class="mu">×${fmt(b.q)}</span></span>${exChip(b.e)}</div>`)});
+ return out.join('')||`<div class="card mu">${t('none')}</div>`}
+const V={
+dash(){const d=DB.d,c=sum(d.batches,b=>b.q*b.c),r=sum(d.products,p=>stk(p.id)*p.sp),
+ low=d.products.filter(p=>stk(p.id)<=p.min).length,ex=d.batches.filter(b=>b.q>0&&b.e&&days(b.e)<=30).length;
+ return`<div class="g">${kp(t('invc'),fmt(c)+' '+t('cur'))}${kp(t('invr'),fmt(r)+' '+t('cur'))}${kp(t('low'),low)}${kp(t('soon'),ex)}${kp(t('rev'),fmt(sum(d.sales,s=>s.rev))+' '+t('cur'))}${kp(t('cogs'),fmt(sum(d.sales,s=>s.cogs))+' '+t('cur'))}${kp(t('gp'),fmt(sum(d.sales,s=>s.rev-s.cogs))+' '+t('cur'))}${kp(t('gm'),(R=>R?fmt(sum(d.sales,s=>s.rev-s.cogs)/R*100)+'%':'—')(sum(d.sales,s=>s.rev)))}</div>${wk()}<h2>${t('alerts')}</h2>${alerts()}
+ <div class="row" style="margin-top:14px"><button class="btn s" onclick="logout()">${lang==='ar'?'تسجيل الخروج':'Sign out'}</button></div>${xcard(['prods','exp','buys','sales','opx'])}`},
+prods(){const d=DB.d,ep=d.products.find(x=>x.id===editId)||{};
+ return`<div class="card"><input id="nar" placeholder="${t('nar')}" value="${esc(ep.ar)}"><input id="nen" placeholder="${t('nen')}" dir="ltr" value="${esc(ep.en)}">
+ <div class="g"><input id="sp" type="number" inputmode="decimal" placeholder="${t('price')}" value="${ep.sp??''}"><input id="mn" type="number" inputmode="numeric" placeholder="${t('min')}" value="${ep.min??''}"></div>
+ <label class="row" style="justify-content:flex-start;margin:6px 0"><input id="tr" type="checkbox" style="width:auto" ${ep.tr?'checked':''}> ${t('track')}</label>
+ <button class="btn" onclick="addProduct()">${editId?t('upd'):t('add')}</button></div>`+
+ (d.products.map(p=>{const[ch,col,s]=stChip(p),pc=p.min?Math.min(100,s/(p.min*2)*100):100;
+  return`<div class="card"><div class="row"><b>${esc(nm(p))}</b>${ch}</div><div class="mu">${t('stk')}: ${fmt(s)} · ${t('price')}: ${fmt(p.sp)} · ${t('wac')}: ${fmt(p.cost)}</div><div class="bar"><i style="width:${pc}%;background:${col}"></i></div><div class="row" style="margin-top:8px"><button class="btn s" onclick="editId='${p.id}';R();scrollTo(0,0)">${t('edit')}</button><button class="btn s" onclick="delProduct('${p.id}')">${t('del')}</button></div></div>`}).join('')||`<div class="card mu">${t('none')}</div>`)},
+buys(){const d=DB.d,opts=v=>'<option value=""></option>'+d.products.map(p=>`<option value="${p.id}" ${p.id===v?'selected':''}>${esc(nm(p))}</option>`).join('');
+ const lines=draft.map((l,i)=>`<div class="card"><select id="p${i}">${opts(l.pid)}</select><div class="l3"><input id="q${i}" type="number" inputmode="decimal" placeholder="${t('qty')}" value="${l.qty||''}"><input id="c${i}" type="number" inputmode="decimal" placeholder="${t('cost')}" value="${l.cost||''}"><input id="e${i}" type="date" value="${l.exp||''}"></div></div>`).join('');
+ return`<button class="btn s" style="width:100%;margin-bottom:10px" onclick="tab='impv';R()">${t('impb')}</button><div class="card"><input id="sup" placeholder="${t('sup')}"><input id="dt" type="date" value="${today()}"></div>${lines}
+ <div class="row"><button class="btn s" onclick="addLine()">${t('line')}</button><button class="btn" onclick="savePurchase()">${t('save')}</button></div>
+ <h2>${t('last')}</h2>`+(d.purchases.slice(-8).reverse().map(x=>`<div class="card row"><span>${esc(x.sup)||'—'} <span class="mu">${x.date}</span></span><b>${fmt(x.tot)} ${t('cur')}</b></div>`).join('')||`<div class="card mu">${t('none')}</div>`)},
+sales(){const d=DB.d,opts=v=>'<option value=""></option>'+d.products.filter(p=>avail(p.id)>0).map(p=>`<option value="${p.id}" ${p.id===v?'selected':''}>${esc(nm(p))} (${fmt(avail(p.id))})</option>`).join('');
+ const lines=draft.map((l,i)=>`<div class="card"><select id="p${i}">${opts(l.pid)}</select><div class="g"><input id="q${i}" type="number" inputmode="decimal" placeholder="${t('qty')}" value="${l.qty||''}"><input id="c${i}" type="number" inputmode="decimal" placeholder="${t('pr')}" value="${l.cost||''}"></div></div>`).join('');
+ return`<div class="card"><input id="cu" placeholder="${t('cust')}"><div class="g"><input id="dt" type="date" value="${today()}"><input id="ds" type="number" inputmode="decimal" placeholder="${t('disc')}"></div></div>${lines}<div class="row"><button class="btn s" onclick="addLine()">${t('line')}</button><button class="btn" onclick="saveSale()">${t('sell')}</button></div><h2>${t('lasts')}</h2>`+(d.sales.slice(-8).reverse().map(x=>`<div class="card row"><span>${esc(x.cust)||'—'} <span class="mu">${x.date}</span></span><span><b>${fmt(x.rev)}</b> <span class="mu">+${fmt(x.rev-x.cogs)}</span></span></div>`).join('')||`<div class="card mu">${t('none')}</div>`)},
+ptx(){const d=DB.d,opts=CATS.map(c=>`<option value="${c[0]}">${cn(c)}</option>`).join('');
+ return`<div class="card"><div class="g"><select id="tt"><option value="out">${t('xout')}</option><option value="in">${t('xin')}</option></select><select id="tc">${opts}</select></div><div class="g"><input id="ta" type="number" inputmode="decimal" placeholder="${t('amt')}"><input id="td" type="date" value="${today()}"></div><input id="tn" placeholder="${t('note2')}"><button class="btn" onclick="addTx()">${t('add')}</button></div>`+(d.ptx.slice(-15).reverse().map(x=>`<div class="card row"><span>${x.ty==='in'?'⬆':'⬇'} ${catn(x.c)} <span class="mu">${x.date} ${esc(x.n)}</span></span><span><b style="color:${x.ty==='in'?'var(--ok)':'var(--er)'}">${fmt(x.a)}</b> <button class="lang" onclick="delTx('${x.id}')">✕</button></span></div>`).join('')||`<div class="card mu">${t('none')}</div>`)},
+pdash(){const p=pm(),nw=sum(DB.d.assets,a=>a.v),cash=sum(DB.d.assets.filter(a=>a.c==='cash'),a=>a.v),pc=x=>x==null?'—':fmt(x)+'%',top=Object.entries(p.by).sort((a,b)=>b[1]-a[1]).slice(0,5);
+ return`<div class="g">${kp(t('pin'),fmt(p.inc))}${kp(t('pex'),fmt(p.exp))}${kp(t('sr'),pc(p.sr))}${kp(t('nw'),fmt(nw))}${kp(t('needs'),pc(p.inc?p.nd/p.inc*100:null))}${kp(t('wants'),pc(p.inc?p.wn/p.inc*100:null))}${kp(t('emg'),p.exp?fmt(cash/p.exp):'—')}${kp(t('bal'),fmt(p.bal))}</div><div class="mu">${t('rule')}</div>${xcard(['ptx','pport'])}<h2>${t('top')}</h2>`+(top.map(([k,v])=>`<div class="card"><div class="row"><span>${catn(k)}</span><b>${fmt(v)}</b></div><div class="bar"><i style="width:${v/p.exp*100}%;background:var(--pr)"></i></div></div>`).join('')||`<div class="card mu">${t('none')}</div>`)},
+pbud(){const p=pm(),n=new Date(),dm=new Date(n.getFullYear(),n.getMonth()+1,0).getDate(),pl=sum(CATS,c=>DB.d.budget[c[0]]||0),fc=p.exp/n.getDate()*dm;
+ return`<div class="card k"><small>${t('plan')} / ${t('act')} / ${t('fc')}</small><b>${fmt(pl)} / ${fmt(p.exp)} / ${fmt(fc)}</b></div>`+CATS.map(c=>{const b=DB.d.budget[c[0]]||0,a=p.by[c[0]]||0,r=b?a/b*100:0,col=r>100?'var(--er)':r>=80?'var(--wa)':'var(--ok)';return`<div class="card"><div class="row"><span>${cn(c)}</span><input type="number" inputmode="decimal" style="width:110px" value="${b||''}" placeholder="${t('plan')}" onchange="setBud('${c[0]}',this.value)"></div><div class="mu">${t('act')}: ${fmt(a)}</div><div class="bar"><i style="width:${Math.min(100,r)}%;background:${col}"></i></div></div>`}).join('')},
+pport(){const d=DB.d,tot=sum(d.assets,a=>a.v),ts=sum(CLS,c=>d.targets[c[0]]||0),copts=CLS.map(c=>`<option value="${c[0]}">${cn(c)}</option>`).join('');
+ const rows=CLS.map(c=>{const v=sum(d.assets.filter(a=>a.c===c[0]),a=>a.v),ap=tot?v/tot*100:0,tg=d.targets[c[0]]||0,df=tg/100*tot-v;
+  return`<div class="card"><div class="row"><b>${cn(c)}</b><input type="number" inputmode="decimal" style="width:80px" value="${tg||''}" placeholder="%" onchange="setTgt('${c[0]}',this.value)"></div><div class="mu">${fmt(v)} · ${fmt(ap)}% ${tg?`· ${df>=0?t('buyx'):t('sellx')} ${fmt(Math.abs(df))}`:''}</div><div class="bar"><i style="width:${ap}%;background:var(--pr)"></i></div></div>`}).join('');
+ return`<div class="g">${kp(t('nw'),fmt(tot))}${kp(t('tsum'),fmt(ts)+'%')}</div>${ts&&ts!==100?`<div class="card edge o mu">${t('t100')}</div>`:''}<div class="card"><input id="an" placeholder="${t('aname')}"><div class="g"><select id="ac">${copts}</select><input id="av" type="number" inputmode="decimal" placeholder="${t('val')}"></div><button class="btn" onclick="addAsset()">${t('add')}</button></div><h2>${t('alloc')}</h2>${rows}<h2>${t('assets')}</h2>`+(d.assets.map(a=>`<div class="card row"><span>${esc(a.n)||'—'} <span class="mu">${cn(CLS.find(c=>c[0]===a.c))}</span></span><span><b>${fmt(a.v)}</b> <button class="lang" onclick="delAsset('${a.id}')">✕</button></span></div>`).join('')||`<div class="card mu">${t('none')}</div>`)},
+impv(){if(!imp)imp=impEmpty();const m=impCalc();
+ const rows=imp.lines.map((l,i)=>{const c=m.L[i],po=[...new Set([...PCS,+l.p||1])].sort((a,b)=>a-b);
+  return`<div class="card${c.warn?' edge o':''}"><div class="row"><input value="${esc(l.n)}" onchange="impSet(${i},'n',this.value)"><button class="lang" onclick="impDel(${i})">✕</button></div><div class="mu">${c.pid?t('match'):t('newp')}</div><div class="g"><label class="mu">${t('qty')}<input type="number" inputmode="decimal" value="${l.q}" onchange="impSet(${i},'q',this.value)"></label><label class="mu">${t('ppc')}<select onchange="impSet(${i},'p',this.value)">${po.map(v=>`<option ${+l.p===v?'selected':''}>${v}</option>`).join('')}</select></label><label class="mu">${t('cprice')}<input type="number" inputmode="decimal" value="${l.price}" onchange="impSet(${i},'price',this.value)"></label><label class="mu">${t('pcnt')}<select onchange="impSet(${i},'pct',this.value)">${PC.map(k=>`<option value="${k/100}" ${Math.round(l.pct*100)===k?'selected':''}>${k}%</option>`).join('')}</select></label></div><label class="mu">${t('ex')}<input type="date" value="${l.e||''}" onchange="impSet(${i},'e',this.value)"></label><div class="mu">${t('cost')}: ${fmt(c.uc)} · ${t('tot2')}: ${fmt(c.tot)} · ${t('price')}: ${fmt(c.sp)} · ${t('pfx')}: ${fmt(c.pf)}</div></div>`}).join('');
+ return`<button class="btn s" onclick="tab='buys';R()">${t('back')}</button><h2>${t('imptitle')}</h2><div class="card"><textarea id="itx" style="width:100%;height:80px" placeholder="${t('paste')}"></textarea><button class="btn" onclick="impParse()">${t('parse')}</button></div><div class="card"><input value="${esc(imp.sup)}" placeholder="${t('sup')}" onchange="imp.sup=this.value;ls('mz_imp',imp);R()"><div class="g"><input type="date" value="${imp.date}" onchange="imp.date=this.value;ls('mz_imp',imp);R()"><input type="number" inputmode="decimal" placeholder="${t('printed')}" value="${imp.tot}" onchange="imp.tot=this.value;ls('mz_imp',imp);R()"></div></div>${rows}<button class="btn s" onclick="impAdd()">${t('line')}</button><div class="card k" style="margin-top:10px"><small>${t('sumx')} / ${t('pfsum')}</small><b>${fmt(m.tot)} / ${fmt(m.pf)}</b></div>${m.diff!=null&&Math.abs(m.diff)>0.01?`<div class="card edge mu">${t('diffx')}: ${fmt(m.diff)}</div>`:''}${m.dup?`<div class="card edge o mu">${t('dup')}</div>`:''}<div class="mu">${t('pcsnote')}</div><button class="btn" style="width:100%;margin-top:8px" onclick="impCommit()">${t('confirm')}</button>`},
+fin(){const d=DB.d,m=metrics(),pc=x=>x==null?'—':fmt(x)+'%',nx=x=>x==null?'—':fmt(x),cu=x=>fmt(x)+' '+t('cur');
+ return`<div class="card"><b>${t('addexp')}</b><input id="xc" placeholder="${t('cat')}"><div class="g"><input id="xa" type="number" inputmode="decimal" placeholder="${t('amt')}"><input id="xd" type="date" value="${today()}"></div><button class="btn" onclick="addExpense()">${t('add')}</button></div><div class="card"><b>${t('capital')}</b><select id="ct"><option value="in">${t('inv')}</option><option value="out">${t('wd')}</option></select><input id="ca" type="number" inputmode="decimal" placeholder="${t('amt')}"><button class="btn" onclick="addCapital()">${t('add')}</button></div><h2>${t('kpi')}</h2><div class="g">${kp(t('gp'),cu(m.gp))}${kp(t('np'),cu(m.np))}${kp(t('nmg'),pc(m.nmg))}${kp(t('opx'),cu(m.opx))}${kp(t('capi'),cu(m.cap))}${kp(t('roi'),pc(m.roi))}${kp(t('ctn'),nx(m.ct))}${kp(t('itn'),nx(m.it))}${kp(t('dio'),nx(m.dio))}${kp(t('pay'),nx(m.pay))}</div><div class="mu">${t('note')}</div><h2>${t('rexp')}</h2>`+(d.expenses.slice(-8).reverse().map(x=>`<div class="card row"><span>${esc(x.cat)} <span class="mu">${x.date}</span></span><b>${fmt(x.a)}</b></div>`).join('')||`<div class="card mu">${t('none')}</div>`)},
+exp(){const d=DB.d,B=d.batches.filter(b=>b.q>0&&b.e).sort((a,b)=>a.e>b.e?1:-1);
+ return B.map(b=>{const p=d.products.find(x=>x.id===b.pid);return`<div class="card row"><span>${esc(nm(p))}<br><span class="mu">×${fmt(b.q)} · ${b.e} · ${fmt(b.q*b.c)} ${t('cur')}</span></span>${exChip(b.e)}</div>`}).join('')||`<div class="card mu">${t('none')}</div>`}
+};
+function R(){if(!window.AUTHED){renderLogin();return}
+ document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+ const tabs=mod==='shop'?['dash','prods','buys','sales','exp','fin']:['pdash','ptx','pbud','pport'];
+ $('app').innerHTML=`<header><h1>${t('app')}</h1><span><button class="lang ${mod==='shop'?'on':''}" onclick="mod='shop';tab='dash';R()">${t('shop')}</button> <button class="lang ${mod==='me'?'on':''}" onclick="mod='me';tab='pdash';R()">${t('me')}</button></span><button class="lang" onclick="lang=lang==='ar'?'en':'ar';ls('mz_lang',lang);R()">${lang==='ar'?'EN':'عربي'}</button></header><main>${V[tab]()}</main><nav>${tabs.map(k=>`<button class="${k===tab?'on':''}" onclick="tab='${k}';draft=[{}];editId=null;R()">${t(k)}</button>`).join('')}</nav>`}
+/* ===== Supabase layer (overrides the local-storage functions above) ===== */
+const SB_URL='https://baxdddtdcliclbeljrov.supabase.co',SB_KEY='sb_publishable_OqbV7PcpOBViQvtTJPlhwQ_PMC9u7Kc';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+window.AUTHED=false;DB.save=()=>{};DB.reset=()=>{};
+const L2=(a,e)=>lang==='ar'?a:e;
+const by=k=>(a,b)=>a[k]>b[k]?1:a[k]<b[k]?-1:0;
+async function load(){
+ const get=async n=>{const{data,error}=await sb.from(n).select('*');if(error)throw error;return data};
+ const[pr,ba,pu,sa,ex,ca,tx,bu,asx,tg]=await Promise.all(['products','batches','purchases','sales','shop_expenses','capital_entries','personal_tx','budgets','assets','targets'].map(get));
+ const d={};
+ d.products=pr.map(x=>({id:x.id,ar:x.name_ar||'',en:x.name_en||'',sp:+x.sale_price,min:+x.min_stock,tr:x.track_expiry,cost:+x.avg_cost}));
+ d.batches=ba.map(x=>({id:x.id,pid:x.product_id,pu:x.purchase_id,q:+x.qty_remaining,q0:+x.qty_initial,c:+x.unit_cost,e:x.expiry_date,at:x.received_at}));
+ d.purchases=pu.sort(by('created_at')).map(x=>({id:x.id,sup:x.supplier,date:x.purchase_date,tot:+x.total,src:x.source}));
+ d.sales=sa.sort(by('created_at')).map(x=>({id:x.id,cust:x.customer,date:x.sale_date,rev:+x.revenue,cogs:+x.cogs}));
+ d.expenses=ex.sort(by('expense_date')).map(x=>({id:x.id,cat:x.category,a:+x.amount,date:x.expense_date}));
+ d.capital=ca.sort(by('entry_date')).map(x=>({id:x.id,t:x.kind,a:+x.amount,date:x.entry_date}));
+ d.ptx=tx.sort(by('tx_date')).map(x=>({id:x.id,ty:x.kind,c:x.category,a:+x.amount,date:x.tx_date,n:x.note||''}));
+ d.budget={};bu.forEach(x=>d.budget[x.category]=+x.amount);
+ d.assets=asx.map(x=>({id:x.id,n:x.name,c:x.asset_class,v:+x.value}));
+ d.targets={};tg.forEach(x=>d.targets[x.asset_class]=+x.pct);
+ DB.d=d}
+async function run(p){const{error}=await p;if(error){alert(error.message);return false}
+ try{await load()}catch(e){alert(e.message);return false}R();return true}
+function renderLogin(){document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+ $('app').innerHTML=`<main style="padding-top:70px"><h1 style="text-align:center;font-size:28px">${t('app')}</h1><div class="card"><input id="em" type="email" autocomplete="username" placeholder="${L2('البريد الإلكتروني','Email')}"><input id="pw" type="password" autocomplete="current-password" placeholder="${L2('كلمة المرور','Password')}"><button class="btn" style="width:100%;margin-top:6px" onclick="login()">${L2('دخول','Sign in')}</button><div class="mu" id="lerr"></div></div><div style="text-align:center"><button class="lang" onclick="lang=lang==='ar'?'en':'ar';ls('mz_lang',lang);renderLogin()">${lang==='ar'?'EN':'عربي'}</button></div></main>`}
+async function login(){const{error}=await sb.auth.signInWithPassword({email:$('em').value.trim(),password:$('pw').value});
+ if(error){$('lerr').textContent=error.message;return}enter()}
+async function logout(){await sb.auth.signOut();window.AUTHED=false;renderLogin()}
+async function enter(){$('app').innerHTML='<p style="padding:40px;text-align:center" class="mu">...</p>';
+ try{await load();window.AUTHED=true;R()}catch(e){$('app').innerHTML='';renderLogin();$('lerr').textContent=e.message}}
+async function boot(){const{data}=await sb.auth.getSession();if(data.session)enter();else renderLogin()}
+
+function demo(){}
+async function addProduct(){const ar=$('nar').value.trim(),en=$('nen').value.trim();if(!ar&&!en)return;
+ const o={name_ar:ar,name_en:en,sale_price:+$('sp').value||0,min_stock:+$('mn').value||0,track_expiry:$('tr').checked},id=editId;editId=null;
+ await run(id?sb.from('products').update(o).eq('id',id):sb.from('products').insert(o))}
+async function delProduct(id){if(!confirm(t('sure')))return;await run(sb.from('products').delete().eq('id',id))}
+async function addExpense(){const a=+$('xa').value;if(!a)return;
+ await run(sb.from('shop_expenses').insert({category:$('xc').value.trim(),amount:a,expense_date:$('xd').value||today()}))}
+async function addCapital(){const a=+$('ca').value;if(!a)return;await run(sb.from('capital_entries').insert({kind:$('ct').value,amount:a}))}
+async function addTx(){const a=+$('ta').value;if(!a)return;
+ await run(sb.from('personal_tx').insert({kind:$('tt').value,category:$('tc').value,amount:a,tx_date:$('td').value||today(),note:$('tn').value.trim()}))}
+async function delTx(id){await run(sb.from('personal_tx').delete().eq('id',id))}
+async function setBud(k,v){await run(sb.from('budgets').upsert({category:k,amount:+v||0},{onConflict:'user_id,category'}))}
+async function addAsset(){const v=+$('av').value;if(!v)return;await run(sb.from('assets').insert({name:$('an').value.trim(),asset_class:$('ac').value,value:v}))}
+async function delAsset(id){await run(sb.from('assets').delete().eq('id',id))}
+async function setTgt(k,v){await run(sb.from('targets').upsert({asset_class:k,pct:+v||0},{onConflict:'user_id,asset_class'}))}
+async function savePurchase(){const L=readLines().filter(l=>l.pid&&+l.qty>0);if(!L.length)return;
+ const a={p_supplier:$('sup').value,p_date:$('dt').value||today(),p_source:'manual',p_lines:L.map(l=>({product_id:l.pid,qty:+l.qty,unit_cost:+l.cost||0,expiry:l.exp||null}))};
+ draft=[{}];await run(sb.rpc('record_purchase',a))}
+async function saveSale(){const L=readLines().filter(l=>l.pid&&+l.qty>0);if(!L.length)return;
+ const need={};L.forEach(l=>need[l.pid]=(need[l.pid]||0)+(+l.qty));
+ for(const pid in need){if(avail(pid)<need[pid]){alert(t('nostk'));return}}
+ const a={p_customer:$('cu').value,p_date:$('dt').value||today(),p_discount:+$('ds').value||0,p_lines:L.map(l=>({product_id:l.pid,qty:+l.qty,price:(l.cost!==''&&l.cost!=null)?+l.cost:null}))};
+ draft=[{}];await run(sb.rpc('record_sale',a))}
+async function impCommit(){const m=impCalc();if(!imp.lines.length)return;if(m.dup&&!confirm(t('dup')))return;
+ const lines=[];imp.lines.forEach((l,i)=>{const c=m.L[i],n=String(l.n||'').trim(),q=(+l.q||0)*(+l.p||1);if(!n||q<=0)return;
+  lines.push({product_id:c.pid||null,name_en:c.pid?null:n,qty:q,unit_cost:c.uc,sale_price:c.sp,expiry:l.e||null})});
+ if(!lines.length)return;
+ const ok=await run(sb.rpc('record_purchase',{p_supplier:imp.sup,p_date:imp.date,p_lines:lines,p_source:'import'}));
+ if(ok){imp=impEmpty();ls('mz_imp',imp);tab='buys';R()}}
+boot();
+</script>
+</body>
+</html>
