@@ -34,6 +34,11 @@ nav button{flex:1;background:none;border:0;padding:12px 2px;min-height:56px;colo
 nav button.on{color:var(--pr);font-weight:700}
 .l3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:6px}
 .edge{border-inline-start:4px solid var(--er)}.edge.o{border-color:var(--wa)}
+.tw{overflow-x:auto;border:1px solid var(--bd);border-radius:12px;margin-bottom:10px}
+.tw table{border-collapse:collapse;font-size:12px;white-space:nowrap;min-width:100%}
+.tw th{background:#0f766e;color:#fff;padding:8px 10px;font-weight:600}
+.tw td{padding:7px 10px;border-top:1px solid var(--bd);text-align:center}
+.tw td.nm{text-align:start;font-weight:600}.tw tfoot td{font-weight:700;background:var(--card)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.111.0"></script>
 </head>
@@ -221,7 +226,7 @@ async function load(){
  const[pr,ba,pu,sa,ex,ca,tx,bu,asx,tg]=await Promise.all(['products','batches','purchases','sales','shop_expenses','capital_entries','personal_tx','budgets','assets','targets'].map(get));
  const d={};
  d.products=pr.map(x=>({id:x.id,ar:x.name_ar||'',en:x.name_en||'',sp:+x.sale_price,min:+x.min_stock,tr:x.track_expiry,cost:+x.avg_cost}));
- d.batches=ba.map(x=>({id:x.id,pid:x.product_id,pu:x.purchase_id,q:+x.qty_remaining,q0:+x.qty_initial,c:+x.unit_cost,e:x.expiry_date,at:x.received_at}));
+ d.batches=ba.map(x=>({id:x.id,pid:x.product_id,pu:x.purchase_id,q:+x.qty_remaining,q0:+x.qty_initial,c:+x.unit_cost,e:x.expiry_date,at:x.received_at,pt:x.pack_type,pq:x.pack_qty==null?null:+x.pack_qty,pp:x.pack_price==null?null:+x.pack_price,ppp:x.pieces_per_pack==null?null:+x.pieces_per_pack,mg:x.margin==null?null:+x.margin}));
  d.purchases=pu.sort(by('created_at')).map(x=>({id:x.id,sup:x.supplier,date:x.purchase_date,tot:+x.total,src:x.source}));
  d.sales=sa.sort(by('created_at')).map(x=>({id:x.id,cust:x.customer,date:x.sale_date,rev:+x.revenue,cogs:+x.cogs}));
  d.expenses=ex.sort(by('expense_date')).map(x=>({id:x.id,cat:x.category,a:+x.amount,date:x.expense_date}));
@@ -267,10 +272,37 @@ async function saveSale(){const L=readLines().filter(l=>l.pid&&+l.qty>0);if(!L.l
  draft=[{}];await run(sb.rpc('record_sale',a))}
 async function impCommit(){const m=impCalc();if(!imp.lines.length)return;if(m.dup&&!confirm(t('dup')))return;
  const lines=[];imp.lines.forEach((l,i)=>{const c=m.L[i],n=String(l.n||'').trim(),q=(+l.q||0)*(+l.p||1);if(!n||q<=0)return;
-  lines.push({product_id:c.pid||null,name_en:c.pid?null:n,qty:q,unit_cost:c.uc,sale_price:c.sp,expiry:l.e||null})});
+  lines.push({product_id:c.pid||null,name_en:c.pid?null:n,qty:q,unit_cost:c.uc,sale_price:c.sp,expiry:l.e||null,pack_type:'box',pack_qty:+l.q,pack_price:+l.price,pieces_per_pack:+l.p,margin:+l.pct})});
  if(!lines.length)return;
  const ok=await run(sb.rpc('record_purchase',{p_supplier:imp.sup,p_date:imp.date,p_lines:lines,p_source:'import'}));
  if(ok){imp=impEmpty();ls('mz_imp',imp);tab='buys';R()}}
+
+/* ===== Purchases ledger (sheet-like) ===== */
+let lgq='',lgSup='';
+const pcOpts=sel=>PC.map(k=>`<option value="${k/100}" ${Math.round(sel*100)===k?'selected':''}>${k}%</option>`).join('');
+function lgVals(){const ty=$('lty').value,pp=ty==='piece'?1:(+$('lpp').value||1),q=+$('lq').value||0,pr=+$('lpr').value||0,mg=+$('lmg').value,uc=pr/pp;
+ return{ty,pp,q,pr,mg,uc,sp:Math.round(uc*(1+mg)),tot:q*pr}}
+function lgCalc(){const v=lgVals();$('lpp').disabled=v.ty==='piece';
+ $('lprev').textContent=`${t('cost')}: ${fmt(v.uc)} \u00b7 ${t('tot2')}: ${fmt(v.tot)} \u00b7 ${t('price')}: ${fmt(v.sp)} \u00b7 ${t('pfx')}: ${fmt((v.sp-v.uc)*v.q*v.pp)}`}
+async function lgSave(){const v=lgVals(),n=$('lnm').value.trim();
+ if(!n||v.q<=0||v.pr<=0){alert(L2('أكمل الاسم والكمية والسعر','Fill name, quantity and price'));return}
+ const nn=n.toLowerCase(),P=DB.d.products.find(x=>[x.ar,x.en].some(z=>z&&z.toLowerCase()===nn));lgSup=$('lsup').value;
+ await run(sb.rpc('record_purchase',{p_supplier:lgSup,p_date:$('ldt').value||today(),p_source:'ledger',p_lines:[{product_id:P?P.id:null,name_en:P?null:n,qty:v.q*v.pp,unit_cost:v.uc,sale_price:v.sp,expiry:$('lex').value||null,pack_type:v.ty,pack_qty:v.q,pack_price:v.pr,pieces_per_pack:v.pp,margin:v.mg}]}))}
+async function delBatch(id){if(!confirm(t('sure')))return;await run(sb.from('batches').delete().eq('id',id))}
+V.buys=function(){const d=DB.d,P=id=>d.products.find(x=>x.id===id)||{},PU=id=>d.purchases.find(x=>x.id===id)||{};
+ const names=d.products.map(p=>`<option value="${esc(p.en||p.ar)}">`).join('');
+ const list=d.batches.slice().sort((a,b)=>a.at<b.at?1:a.at>b.at?-1:0).filter(b=>!lgq||nm(P(b.pid)).toLowerCase().includes(lgq.toLowerCase()));
+ let tt=0,tp=0;
+ const body=list.map(b=>{const p=P(b.pid),pq=b.pq??b.q0,pp=b.pp??b.c,ppp=b.ppp??1,tot=pq*pp,sp=b.mg!=null?Math.round(b.c*(1+b.mg)):p.sp,pf=(sp-b.c)*b.q0;tt+=tot;tp+=pf;
+  return`<tr><td>${b.at}</td><td>${esc(PU(b.pu).sup||'')}</td><td class="nm">${esc(nm(p))}</td><td>${b.pt==='piece'?L2('قطعة','Piece'):L2('علبة','Box')}</td><td>${fmt(pq)}</td><td>${fmt(pp)}</td><td>${fmt(ppp)}</td><td>${fmt(tot)}</td><td>${fmt(b.c)}</td><td>${fmt(sp)}</td><td>${fmt(pf)}</td><td>${b.q===b.q0?`<button class="lang" onclick="delBatch('${b.id}')">\u2715</button>`:''}</td></tr>`}).join('');
+ const H=[L2('التاريخ','Date'),t('sup'),L2('اسم المنتج','Product'),L2('النوع','Type'),t('qty'),t('cprice'),L2('القطع في العلبة','Pcs/box'),L2('السعر الإجمالي','Total price'),L2('تكلفة القطعة','Unit cost'),L2('سعر البيع','Sale price'),L2('الأرباح','Profit'),''];
+ return`<div class="card"><input id="lsup" placeholder="${t('sup')}" value="${esc(lgSup)}"><div class="g"><input id="ldt" type="date" value="${today()}"><input id="lnm" list="plist" placeholder="${t('prod')}"></div><datalist id="plist">${names}</datalist>
+<div class="g"><select id="lty" onchange="lgCalc()"><option value="box">${L2('علبة / كرتون','Box / carton')}</option><option value="piece">${L2('قطعة','Piece')}</option></select><input id="lq" type="number" inputmode="decimal" placeholder="${t('qty')}" oninput="lgCalc()"></div>
+<div class="g"><input id="lpr" type="number" inputmode="decimal" placeholder="${t('cprice')}" oninput="lgCalc()"><select id="lpp" onchange="lgCalc()">${PCS.map(v=>`<option ${v===24?'selected':''}>${v}</option>`).join('')}</select></div>
+<div class="g"><select id="lmg" onchange="lgCalc()">${pcOpts(.4)}</select><input id="lex" type="date" title="${t('ex')}"></div>
+<div class="mu" id="lprev" style="margin:6px 0"></div><button class="btn" style="width:100%" onclick="lgSave()">${t('save')}</button></div>
+<div class="row" style="margin-bottom:8px"><input placeholder="${L2('بحث عن منتج','Search product')}" value="${esc(lgq)}" onchange="lgq=this.value;R()"><button class="btn s" onclick="tab='impv';R()">${t('impb')}</button></div>
+<div class="tw"><table><thead><tr>${H.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${body||`<tr><td colspan="12" class="mu">${t('none')}</td></tr>`}</tbody><tfoot><tr><td colspan="7">${L2('الإجمالي','Total')}</td><td>${fmt(tt)}</td><td colspan="2"></td><td>${fmt(tp)}</td><td></td></tr></tfoot></table></div>`};
 boot();
 </script>
 </body>
